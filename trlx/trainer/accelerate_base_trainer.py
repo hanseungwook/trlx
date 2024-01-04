@@ -73,6 +73,7 @@ class AccelerateRLTrainer(BaseRLTrainer):
         self.tokenizer.padding_side = config.tokenizer.padding_side
         self.tokenizer.truncation_side = config.tokenizer.truncation_side
         self.tokenizer.sep_token = "<sep>"
+        self.tokenizer.model_max_length = 4096
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = "<|padding|>"
 
