@@ -280,6 +280,9 @@ class PreTrainedModelWrapper(nn.Module, transformers.utils.PushToHubMixin):
             filename = os.path.join(pretrained_model_name_or_path, "pytorch_model.bin")
             sharded_index_filename = os.path.join(pretrained_model_name_or_path, "pytorch_model.bin.index.json")
             is_sharded = False
+            
+            if pretrained_model_name_or_path == '/mnt/nfs_csail/misc/idanshen/shared/models/sft_hh':
+                pretrained_model_name_or_path = 'meta-llama/Llama-2-7b-hf'
 
             if not os.path.exists(filename):
                 try:
