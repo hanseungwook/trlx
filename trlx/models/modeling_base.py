@@ -38,6 +38,7 @@ if is_peft_available():
         get_peft_config,
         get_peft_model,
         prepare_model_for_int8_training,
+        prepare_model_for_kbit_training,
     )
 
 
@@ -238,6 +239,9 @@ class PreTrainedModelWrapper(nn.Module, transformers.utils.PushToHubMixin):
                         pretrained_model_name_or_path,
                         **peft_from_pretrained_kwargs,
                     )
+                    
+                    # TODO: k bit training mode -- may need to turn off for inference
+                    base_model = prepare_model_for_kbit_training(base_model, use_gradient_checkpointing=True)
                     logger.info("Trained peft adapter loaded")
 
             # No peft
