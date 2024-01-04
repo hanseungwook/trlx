@@ -333,7 +333,9 @@ class PreTrainedModelWrapper(nn.Module, transformers.utils.PushToHubMixin):
         model.post_init(state_dict=state_dict)
 
         # cache `forward` args for general use (avoids incompatible args across architectures)
-        if peft_config:
+        if trained_adapter_config:
+            model.forward_kwargs = inspect.getfullargspec(model.base_model.forward).args
+        elif peft_config:
             # Don't use the interface of the peft model,
             # use the interface of the underlying transformer model instead.
             # (peft adds 2 "base_model" layers)
