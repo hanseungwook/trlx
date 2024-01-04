@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional, Union
 import torch
 import torch.nn as nn
 import transformers
+from transformers import BitsAndBytesConfig
 from huggingface_hub import hf_hub_download
 
 import trlx.utils.logging as logging
@@ -227,10 +228,20 @@ class PreTrainedModelWrapper(nn.Module, transformers.utils.PushToHubMixin):
 
                 elif trained_adapter_config is not None:
                     peft_config = trained_adapter_config
-
+                    
+                    if 'sft_hh' in pretrained_model_name_or_path:
+                        quantization_config = BitsAndBytesConfig(
+                            load_in_4bit=True,
+                            bnb_4bit_compute_dtype=torch.bfloat16,
+                            bnb_4bit_use_double_quant=True,
+                            bnb_4bit_quant_type='nf4', # by default, options are {'fp4', 'nf4'}
+                        )
+                    else:
+                        quantization_config = None
+                        
                     # Use the pretrained (local or remote) peft adapter file "adapter_config.json"
                     base_model = cls._auto_model_parent_class.from_pretrained(
-                        trained_adapter_config.base_model_name_or_path, *model_args, **from_pretrained_kwargs
+                        trained_adapter_config.base_model_name_or_path, quantization_config=quantization_config, *model_args, **from_pretrained_kwargs
                     )
 
                     # Load the peft weights in "adapter_model.bin" and wrap the base model with a PeftModel
