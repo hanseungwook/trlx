@@ -257,11 +257,18 @@ class PreTrainedModelWrapper(nn.Module, transformers.utils.PushToHubMixin):
 
             # No peft
             if base_model is None:
+                quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.bfloat16,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type='nf4', # by default, options are {'fp4', 'nf4'}
+                )
+
                 # Disable warnings about missing weights when loading the base model
                 verbosity = transformers.logging.get_verbosity()
                 transformers.logging.set_verbosity_error()
                 base_model = cls._auto_model_parent_class.from_pretrained(
-                    pretrained_model_name_or_path, *model_args, **from_pretrained_kwargs
+                    pretrained_model_name_or_path, quantization_config=quantization_config, *model_args, **from_pretrained_kwargs
                 )
                 transformers.logging.set_verbosity(verbosity)
 
