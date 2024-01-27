@@ -100,12 +100,20 @@ class AccelerateRLTrainer(BaseRLTrainer):
             init_trackers_kwargs = {}
 
             if config.train.tracker == "wandb":
+                mode = None
+                if os.environ.get('debug', False):
+                    mode = 'disabled'
+                elif os.environ.get('WANDB_MODE', 'online') == 'offline':
+                    mode = 'offline'
+                else:
+                    mode = 'online'
+
                 init_trackers_kwargs["wandb"] = {
                     "name": run_name,
                     "entity": self.config.train.entity_name,
                     "group": self.config.train.group_name,
                     "tags": self.config.train.tags + ["/".join(get_git_tag())],
-                    "mode": "disabled" if os.environ.get("debug", False) else "online",
+                    "mode": mode,
                 }
 
                 self.accelerator.init_trackers(
